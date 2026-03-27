@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   // 만약 카페24가 보낸 'code'가 있다면 진행
   if (allParams.code) {
     const clientId = '7myLe1AtRy3UfivGoNqetD'; 
-    const clientSecret = '여기에_Secret_Key_넣으세요'; // 보류 중인 Secret Key 입력
+    const clientSecret = 'L3ewEj5ic69WDTMmLyp3xF'; // 보류 중인 Secret Key 입력
     const mallId = 'myfootsize';
     const redirectUri = 'https://matchup-admin-swart.vercel.app/api/get-token';
 
