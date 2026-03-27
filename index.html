@@ -11,66 +11,81 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
   <style>
-    body { font-family: "Nunito", sans-serif; background: #f6f9ff; color: #444; }
+    /* 기본 레이아웃 */
+    body { font-family: "Nunito", sans-serif; background: #f6f9ff; color: #444; margin: 0; }
     .header { height: 60px; background: #fff; border-bottom: 1px solid #ebeef1; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 0 20px; }
     .logo span { font-size: 20px; font-weight: 700; color: #012970; }
-    .sidebar { position: fixed; top: 60px; left: 0; bottom: 0; width: 260px; background: #fff; border-right: 1px solid #ebeef1; padding: 20px; z-index: 996; }
-    .main { margin-top: 60px; margin-left: 260px; padding: 20px; transition: all 0.3s; }
+    .sidebar { position: fixed; top: 60px; left: 0; bottom: 0; width: 260px; background: #fff; border-right: 1px solid #ebeef1; padding: 20px; z-index: 996; transition: all 0.3s; }
+    .main { margin-top: 60px; margin-left: 260px; padding: 30px; transition: all 0.3s; min-height: calc(100vh - 60px); }
     
     @media (max-width: 991px) { .sidebar { left: -260px; } .main { margin-left: 0; } }
 
-    .card { border: none; border-radius: 5px; box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1); }
-    .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
-    .form-check-input { width: 45px !important; height: 22px !important; cursor: pointer; }
+    /* 카드 및 테이블 */
+    .card { border: none; border-radius: 8px; box-shadow: 0px 0 20px rgba(1, 41, 112, 0.05); background: #fff; }
+    .table-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+    .form-check-input { width: 40px; height: 20px; cursor: pointer; }
     
-    /* 모달 디자인 커스텀 (이미지 레이아웃 반영) */
-    .modal-content { border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; position: relative; }
-    .modal-title { font-weight: 700; color: #333; }
-    .modal-product-badge { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; margin-left: 15px; }
-    .modal-body { padding: 30px; }
-    .form-label { font-weight: 600; color: #666; font-size: 13px; margin-bottom: 5px; }
-    .form-control, .form-select { border-radius: 8px; border: 1px solid #e0e0e0; padding: 10px; font-size: 14px; }
-    .form-control:focus { border-color: #0d6efd; box-shadow: none; }
-    .bg-light-input { background-color: #f8f9fa !important; }
+    /* [중요] 모달 디자인 (modalCapture.png 스타일) */
+    .modal-content { border-radius: 12px; border: none; }
+    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 15px 25px; align-items: center; }
+    .modal-header img { width: 55px; height: 55px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; margin-left: 15px; }
+    .modal-body { padding: 25px; }
+    .form-label { font-weight: 600; color: #555; font-size: 13px; margin-bottom: 4px; }
+    .form-control, .form-select { border-radius: 6px; font-size: 14px; padding: 8px 12px; }
+    .form-control[readonly] { background-color: #f8f9fa; }
+
+    /* 모달 내 버튼 섹션 */
+    .btn-save-main { background-color: #0d6efd; border: none; padding: 10px 50px; font-weight: 700; border-radius: 8px; }
+    .btn-group-custom .btn { background-color: #212529; color: white; border: none; font-size: 13px; padding: 8px 16px; border-radius: 6px; }
+    .btn-last-gen { background-color: #0d6efd; color: white; border: none; width: 100%; height: 100%; border-radius: 6px; font-weight: 600; }
     
-    /* 버튼 스타일 */
-    .btn-save { background-color: #0d6efd; border: none; padding: 10px 40px; border-radius: 8px; font-weight: 600; }
-    .btn-dark-custom { background-color: #212529; border: none; color: white; padding: 8px 15px; border-radius: 6px; font-size: 14px; }
-    .btn-last-gen { background-color: #0d6efd; border: none; border-radius: 8px; width: 100%; height: 100%; }
+    /* 페이지네이션 */
+    .pagination .page-link { color: #012970; border: none; margin: 0 3px; border-radius: 4px; }
+    .pagination .active .page-link { background-color: #012970; color: #fff; }
   </style>
 </head>
 
 <body>
 
-  <header id="header" class="header d-flex align-items-center shadow-sm">
-    <div class="logo"><span>MATCH-UP <i class='ri-star-fill' style='color: #ffc107;'></i></span></div>
+  <header id="header" class="header d-flex align-items-center">
+    <div class="logo">
+      <span>MATCH-UP <i class='ri-star-fill' style='color: #ffc107;'></i></span>
+    </div>
     <div class="ms-auto pe-3"><small class="text-muted">choi@myfootsize.com</small></div>
   </header>
 
   <aside id="sidebar" class="sidebar">
     <ul class="nav flex-column">
-      <li class="nav-item mb-2"><a class="nav-link bg-primary text-white rounded" href="#"><i class="bi bi-grid me-2"></i>매칭 상품 관리</a></li>
-      <li class="nav-item mb-2"><a class="nav-link text-dark" href="#"><i class="bi bi-journal-text me-2"></i>측정 리포트</a></li>
+      <li class="nav-item mb-2">
+        <a class="nav-link bg-primary text-white rounded shadow-sm" href="#"><i class="bi bi-grid me-2"></i>매칭 상품 관리</a>
+      </li>
+      <li class="nav-item mb-2">
+        <a class="nav-link text-dark" href="#"><i class="bi bi-journal-text me-2"></i>측정 리포트</a>
+      </li>
     </ul>
   </aside>
 
   <main id="main" class="main">
-    <div class="pagetitle mb-4"><h1>매칭 상품 관리</h1></div>
+    <div class="pagetitle mb-4">
+      <h1 class="fs-4 fw-bold" style="color: #012970;">매칭 상품 관리</h1>
+    </div>
+
     <section class="section">
       <div class="card">
         <div class="card-body pt-3">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>Total : <span id="id_total_count" class="badge bg-primary">0</span></div>
+            <div>Total : <span id="id_total_count" class="badge bg-primary rounded-pill">0</span></div>
             <div class="input-group w-25">
               <input type="text" class="form-control" placeholder="상품명 검색">
               <button class="btn btn-dark"><i class="bi bi-search"></i></button>
             </div>
           </div>
+
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
+                  <th width="60">#</th>
                   <th>상품코드</th>
                   <th>제품사진</th>
                   <th>상품명</th>
@@ -78,9 +93,14 @@
                   <th class="text-center">매칭 관리</th>
                 </tr>
               </thead>
-              <tbody id="product-list-body"></tbody>
+              <tbody id="product-list-body">
+                </tbody>
             </table>
           </div>
+
+          <nav class="mt-4">
+            <ul class="pagination justify-content-center" id="pagination-list"></ul>
+          </nav>
         </div>
       </div>
     </section>
@@ -89,21 +109,21 @@
   <div class="modal fade" id="id_dlg_lable" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header d-flex align-items-center">
-          <h5 class="modal-title m-0">매칭설정</h5>
+        <div class="modal-header">
+          <h5 class="modal-title">매칭설정</h5>
           <img id="modal_product_img" src="" class="modal-product-badge" alt="상품사진">
-          <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="productLable">
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">상품코드</label>
-                <input type="text" name="shoe_seq" class="form-control bg-light-input" readonly>
+                <input type="text" name="shoe_seq" class="form-control" readonly>
               </div>
               <div class="col-md-6">
                 <label class="form-label">상품명</label>
-                <input type="text" name="gs_name" class="form-control bg-light-input" readonly>
+                <input type="text" name="gs_name" class="form-control" readonly>
               </div>
               <div class="col-md-6">
                 <label class="form-label">측정 종이 사이즈</label>
@@ -149,26 +169,26 @@
               </div>
             </div>
 
-            <div class="text-center my-4 pt-2">
-              <button type="button" class="btn btn-primary btn-save px-5">Save</button>
+            <div class="text-center my-4">
+              <button type="button" class="btn btn-primary btn-save-main" onclick="saveData()">Save</button>
             </div>
 
-            <div class="d-flex justify-content-center gap-2 mb-4">
-              <button type="button" class="btn btn-dark-custom">라벨링</button>
-              <button type="button" class="btn btn-dark-custom">너비옵션</button>
-              <button type="button" class="btn btn-dark-custom">제조사이즈</button>
+            <div class="d-flex justify-content-center gap-2 mb-4 btn-group-custom">
+              <button type="button" class="btn">라벨링</button>
+              <button type="button" class="btn">너비옵션</button>
+              <button type="button" class="btn">제조사이즈</button>
             </div>
 
-            <div class="border-top pt-4 mt-2 row g-2 align-items-center">
-              <div class="col-md-2"><span class="small fw-bold text-muted">라스트 이름</span></div>
-              <div class="col-md-2"><input type="text" class="form-control bg-light-input text-center" value="0" readonly></div>
+            <div class="border-top pt-4 row g-2 align-items-center">
+              <div class="col-md-2 small fw-bold text-muted">라스트 이름</div>
+              <div class="col-md-2"><input type="text" class="form-control text-center bg-light" value="0" readonly></div>
               <div class="col-md-5"><input type="text" name="last_name" class="form-control" placeholder="라스트명 입력"></div>
-              <div class="col-md-3"><button type="button" class="btn btn-primary btn-last-gen">라스트 생성</button></div>
+              <div class="col-md-3"><button type="button" class="btn btn-last-gen">라스트 생성</button></div>
             </div>
           </form>
         </div>
         <div class="modal-footer border-0">
-          <button type="button" class="btn btn-secondary px-4" style="border-radius: 8px;" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -176,66 +196,85 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // 1. 카페24 연동 API 호출 (실제 연동을 위해 어제 만든 경로를 사용하세요)
-    async function loadRealProducts() {
+    let currPage = 1;
+
+    // 1. 실제 데이터 로드 함수
+    async function fetchProducts(page = 1) {
+      currPage = page;
       try {
-        const response = await fetch('/api/products?page=1&limit=20');
+        const response = await fetch(`/api/products?page=${page}&limit=20`);
         const data = await response.json();
-        renderProducts(data.products);
+        
+        if (data.products) {
+          renderTable(data.products, (page - 1) * 20);
+          renderPagination(data.pagination);
+          document.getElementById('id_total_count').innerText = data.products.length + (page-1)*20; // 간이 카운트
+        }
       } catch (e) {
-        console.error("데이터 로드 실패", e);
+        console.error("데이터 로드 중 오류:", e);
       }
     }
 
-    // 2. 리스트 화면 출력 (실제 데이터 p.product_code 사용)
-    function renderProducts(products) {
+    // 2. 테이블 렌더링 (순차 번호, 상품코드, 사진 연동)
+    function renderTable(products, offset) {
       const tbody = document.getElementById('product-list-body');
-      tbody.innerHTML = products.map(p => `
+      tbody.innerHTML = products.map((p, i) => `
         <tr>
+          <td><span class="text-muted small">${offset + i + 1}</span></td>
           <td><strong>${p.product_code}</strong></td>
-          <td><img src="${p.tiny_image}" class="product-img"></td>
+          <td><img src="${p.tiny_image}" class="table-img" onerror="this.src='https://via.placeholder.com/50'"></td>
           <td>${p.product_name}</td>
           <td class="text-center">
             <div class="form-check form-switch d-inline-block">
-              <input class="form-check-input" type="checkbox" ${p.display === 'T' ? 'checked' : ''} onchange="checkStatus(this)">
+              <input class="form-check-input" type="checkbox" ${p.display === 'T' ? 'checked' : ''} onchange="toggleActive('${p.product_code}', this.checked)">
             </div>
           </td>
           <td class="text-center">
-            <button class="btn btn-outline-primary btn-sm" onclick="openMatchingModal('${p.product_code}', '${p.product_name}', '${p.list_image}')">
-              <i class="bi bi-ruler"></i> 매칭 설정
+            <button class="btn btn-outline-primary btn-sm px-3" onclick="openModal('${p.product_code}', '${p.product_name}', '${p.list_image}')">
+              <i class="bi bi-gear me-1"></i> 매칭 설정
             </button>
           </td>
         </tr>
       `).join('');
-      document.getElementById('id_total_count').innerText = products.length;
     }
 
-    function checkStatus(el) {
-      if (el.checked) {
-        alert("데이터 확인이 필요합니다.");
-        el.checked = false;
+    // 3. 페이지네이션 렌더링
+    function renderPagination(pg) {
+      const list = document.getElementById('pagination-list');
+      let html = `<li class="page-item ${currPage === 1 ? 'disabled' : ''}"><a class="page-link" onclick="fetchProducts(${currPage - 1})">&lsaquo;</a></li>`;
+      
+      // 현재 페이지 표시 (심플 버전)
+      html += `<li class="page-item active"><a class="page-link">${currPage}</a></li>`;
+      
+      if (pg.hasNextPage) {
+        html += `<li class="page-item"><a class="page-link" onclick="fetchProducts(${currPage + 1})">${currPage + 1}</a></li>`;
       }
-    }
-// [수정된 함수] 모달 열기 및 데이터 바인딩
-function openMatchingModal(code, name, img) {
-  const modalEl = document.getElementById('id_dlg_lable');
-  const form = document.getElementById('productLable');
-  
-  // [수정] "M-" + code 대신 code만 넣어서 순수한 상품코드가 나오게 했습니다.
-  form.querySelector('[name="shoe_seq"]').value = code; 
-  form.querySelector('[name="gs_name"]').value = name;
-  
-  // [수정] 이미지가 없을 경우를 대비해 기본 이미지를 처리합니다.
-  const modalImg = document.getElementById('modal_product_img');
-  modalImg.src = img || 'https://via.placeholder.com/60?text=No+Img'; 
-  
-  const modal = new bootstrap.Modal(modalEl);
-  modal.show();
-}
-   
+      
+      html += `<li class="page-item ${!pg.hasNextPage ? 'disabled' : ''}"><a class="page-link" onclick="fetchProducts(${currPage + 1})">&rsaquo;</a></li>`;
+      list.innerHTML = html;
     }
 
-    window.onload = loadRealProducts;
+    // 4. 모달 데이터 바인딩
+    function openModal(code, name, img) {
+      const form = document.getElementById('productLable');
+      form.querySelector('[name="shoe_seq"]').value = code; // M- 제거하고 상품코드만
+      form.querySelector('[name="gs_name"]').value = name;
+      document.getElementById('modal_product_img').src = img || 'https://via.placeholder.com/60';
+      
+      const myModal = new bootstrap.Modal(document.getElementById('id_dlg_lable'));
+      myModal.show();
+    }
+
+    function toggleActive(code, status) {
+      console.log(`상품 ${code} 활성화 상태: ${status}`);
+    }
+
+    function saveData() {
+      alert("매칭 데이터가 임시 저장되었습니다.\n(DB 연동 시 실제 저장됩니다.)");
+    }
+
+    // 초기 실행
+    window.onload = () => fetchProducts(1);
   </script>
 </body>
 </html>
