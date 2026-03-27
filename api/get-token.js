@@ -4,7 +4,7 @@ export default async function handler(req, res) {
 
   if (code) {
     const clientId = '7myLe1AtRy3UfivGoNqetD'; 
-    const clientSecret = '여기에_진짜_Secret_Key를_넣으세요'; // <-- 꼭 확인!
+    const clientSecret = 'L3ewEj5ic69WDTMmLyp3xF'; // <-- 꼭 확인!
     const mallId = 'myfootsize';
     // [수정] 아래 주소에서 admin/ 을 제거했습니다.
     const tokenUrl = `https://${mallId}.cafe24api.com/api/v2/oauth/token`;
