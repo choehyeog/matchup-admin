@@ -216,18 +216,23 @@
         el.checked = false;
       }
     }
-
-    // 3. 모달 열기 및 데이터 바인딩 (p.list_image 활용)
-    function openMatchingModal(code, name, img) {
-      const modalEl = document.getElementById('id_dlg_lable');
-      const form = document.getElementById('productLable');
-      
-      form.querySelector('[name="shoe_seq"]').value = "M-" + code; // No. 자리에 상품코드 입력
-      form.querySelector('[name="gs_name"]').value = name;
-      document.getElementById('modal_product_img').src = img; // 상품 사진 연동
-      
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
+// [수정된 함수] 모달 열기 및 데이터 바인딩
+function openMatchingModal(code, name, img) {
+  const modalEl = document.getElementById('id_dlg_lable');
+  const form = document.getElementById('productLable');
+  
+  // [수정] "M-" + code 대신 code만 넣어서 순수한 상품코드가 나오게 했습니다.
+  form.querySelector('[name="shoe_seq"]').value = code; 
+  form.querySelector('[name="gs_name"]').value = name;
+  
+  // [수정] 이미지가 없을 경우를 대비해 기본 이미지를 처리합니다.
+  const modalImg = document.getElementById('modal_product_img');
+  modalImg.src = img || 'https://via.placeholder.com/60?text=No+Img'; 
+  
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+}
+   
     }
 
     window.onload = loadRealProducts;
