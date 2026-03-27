@@ -2,63 +2,80 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>매치업 - 상품 관리</title>
+    <title>매치업 관리자 페이지</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background: #f5f7fa; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
-        .product-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 8px; color: #333; }
-        .product-price { color: #0070f3; font-weight: 600; margin-bottom: 15px; }
-        .btn-match { width: 100%; padding: 10px; background: #0070f3; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .btn-match:hover { background: #0051ad; }
-        .loading { text-align: center; font-size: 1.2rem; color: #666; padding: 50px; }
+        /* 초기 스타일: 깔끔한 화이트와 그레이 톤 */
+        body { font-family: sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #fff; }
+        h1 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; font-size: 24px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f8f8; font-weight: bold; }
+        
+        .product-img { width: 50px; height: 50px; object-fit: cover; border: 1px solid #eee; }
+        .btn-setup { padding: 6px 12px; cursor: pointer; background: #fff; border: 1px solid #333; }
+        .btn-setup:hover { background: #333; color: #fff; }
+        
+        #status { margin-bottom: 10px; color: #666; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>👟 매치업 상품 목록</h1>
-    <p id="mall-id">Mall: myfootsize</p>
-</div>
+    <h1>매치업(Match-up) 상품 관리</h1>
+    <div id="status">쇼핑몰 데이터 연결됨: myfootsize</div>
 
-<div id="loading" class="loading">상품 데이터를 불러오는 중...</div>
-<div class="product-grid" id="product-list"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>이미지</th>
+                <th>상품명</th>
+                <th>판매가</th>
+                <th>설정</th>
+            </tr>
+        </thead>
+        <tbody id="product-tbody">
+            <tr>
+                <td colspan="5" style="text-align:center;">데이터를 불러오는 중입니다...</td>
+            </tr>
+        </tbody>
+    </table>
 
-<script>
-    async function loadProducts() {
-        try {
-            // 우리가 만든 API 경로에서 데이터를 가져옵니다.
-            const response = await fetch('/api/products');
-            const data = await response.json();
+    <script>
+        async function fetchProducts() {
+            try {
+                // 서버에서 실제 JSON 데이터를 가져옴 
+                const response = await fetch('/api/products');
+                const data = await response.json();
 
-            const productList = document.getElementById('product-list');
-            const loading = document.getElementById('loading');
-            loading.style.display = 'none';
+                const tbody = document.getElementById('product-tbody');
+                tbody.innerHTML = ''; // 로딩 문구 삭제
 
-            // 상품 목록을 화면에 하나씩 그립니다.
-            data.products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <img src="${product.list_image}" class="product-img" alt="${product.product_name}">
-                    <div class="product-name">${product.product_name}</div>
-                    <div class="product-price">${Number(product.price).toLocaleString()}원</div>
-                    <button class="btn-match" onclick="alert('${product.product_name} 매칭 설정을 시작합니다!')">
-                        매칭 설정하기
-                    </button>
-                `;
-                productList.appendChild(card);
-            });
-        } catch (error) {
-            console.error('데이터 로드 실패:', error);
-            document.getElementById('loading').innerText = '데이터를 불러오지 못했습니다. 토큰 만료를 확인하세요.';
+                // 가져온 상품들을 리스트로 출력 
+                data.products.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${item.product_no}</td>
+                            <td><img src="${item.tiny_image}" class="product-img"></td>
+                            <td><strong>${item.product_name}</strong></td>
+                            <td>${Number(item.price).toLocaleString()}원</td>
+                            <td><button class="btn-setup" onclick="setupMatch('${item.product_no}', '${item.product_name}')">매칭설정</button></td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                document.getElementById('product-tbody').innerHTML = 
+                    '<tr><td colspan="5" style="color:red; text-align:center;">데이터 로드 실패 (토큰 만료 확인)</td></tr>';
+            }
         }
-    }
 
-    loadProducts();
-</script>
+        function setupMatch(no, name) {
+            alert('[' + no + '] ' + name + '\n상품의 발볼/발등 매칭 설정을 시작합니다.');
+        }
 
+        // 페이지 시작 시 데이터 호출
+        fetchProducts();
+    </script>
 </body>
 </html>
