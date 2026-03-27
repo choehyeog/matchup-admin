@@ -1,7 +1,7 @@
 // api/products.js
 export default async function handler(req, res) {
-  // [필독] 대표님의 12자리 토큰을 여기에 넣으세요!
-  const accessToken = '0mVaJMqsBFXmplwoyGVcaD'; 
+  // [필독] 현재 사용 중인 토큰을 여기에 꼭 넣으세요!
+  const accessToken = '55TVwKseIyUfWFsCrHZmGM'; 
   const mallId = 'myfootsize';
 
   const page = parseInt(req.query.page) || 1;
@@ -9,8 +9,8 @@ export default async function handler(req, res) {
   const offset = (page - 1) * limit;
 
   try {
-    // fields에 product_code, display, selling(판매여부)를 추가했습니다.
-    const requestUrl = `https://${mallId}.cafe24api.com/api/v2/admin/products?limit=${limit}&offset=${offset}&fields=product_no,product_code,product_name,tiny_image,display,selling`;
+    // [수정] fields 항목에 'list_image'를 명시적으로 추가했습니다.
+    const requestUrl = `https://${mallId}.cafe24api.com/api/v2/admin/products?limit=${limit}&offset=${offset}&fields=product_no,product_code,product_name,tiny_image,list_image,display,selling`;
     
     const response = await fetch(requestUrl, {
       method: 'GET',
