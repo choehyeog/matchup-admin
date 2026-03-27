@@ -1,7 +1,7 @@
 // api/products.js
 export default async function handler(req, res) {
   // [필독] 현재 사용 중인 토큰을 여기에 꼭 넣으세요!
-  const accessToken = 'tXCJZ7SrBVdpkktLtGZ1FB'; 
+  const accessToken = 'RM52dyekIy4J3uT2TiWjPH'; 
   const mallId = 'myfootsize';
 
   const page = parseInt(req.query.page) || 1;
