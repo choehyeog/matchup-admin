@@ -1,259 +1,236 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>매치업(Match-up) 관리 시스템</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f4f6f9; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }
-        .navbar { border-bottom: 1px solid #ddd; }
-        .table-img { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; }
-        .form-check-input { cursor: pointer; }
-        
-        /* [중요] 모달 스타일 고도화 (modalCapture.png 레이아웃 반영) */
-        .modal-header { border-bottom: none; padding-bottom: 0; }
-        .modal-title { font-size: 1rem; font-weight: bold; }
-        .modal-body { display: flex; gap: 25px; padding: 25px; }
-        .modal-footer { border-top: none; padding-top: 0; }
-        
-        /* 왼쪽: 상품 이미지 섹션 */
-        .modal-p-img-box { flex: 0 0 160px; text-align: center; }
-        .modal-p-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; margin-bottom: 12px; }
-        .modal-p-title { font-size: 0.85rem; fw-bold; color: #333; line-height: 1.4; word-break: break-all; }
-        
-        /* 오른쪽: 입력 폼 섹션 (격자형) */
-        .modal-form-box { flex: 1; }
-        .form-group.row { margin-bottom: 12px; align-items: center; }
-        .col-form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-align: right; }
-        .form-control, .form-select { font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; border-color: #ddd; }
-        
-        /* 읽기전용 필드 스타일 */
-        .form-control[readonly] { background-color: #f8f9fa; color: #777; border-color: #e9ecef; }
-        
-        /* 라디오 버튼 그룹 스타일 */
-        .btn-match-group .form-check { display: inline-block; margin-right: 15px; font-size: 0.8rem; }
-        
-        /* 버튼 스타일 */
-        .btn-primary { background-color: #0d6efd; border-color: #0d6efd; font-size: 0.85rem; padding: 6px 15px; border-radius: 6px; }
-        .btn-secondary { font-size: 0.85rem; padding: 6px 15px; border-radius: 6px; }
-        
-        /* 검색 아이콘 스타일 */
-        .input-group-text { font-size: 0.8rem; background: none; border-left: none; color: #aaa; }
-        .input-group .form-control { border-right: none; }
-    </style>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>매치업(Match-Up) 관리자 패널</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Nunito:300,400,600,700" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+  <style>
+    body { font-family: "Nunito", sans-serif; background: #f6f9ff; color: #444; }
+    .header { height: 60px; background: #fff; border-bottom: 1px solid #ebeef1; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 0 20px; }
+    .logo span { font-size: 20px; font-weight: 700; color: #012970; }
+    .sidebar { position: fixed; top: 60px; left: 0; bottom: 0; width: 260px; background: #fff; border-right: 1px solid #ebeef1; padding: 20px; z-index: 996; }
+    .main { margin-top: 60px; margin-left: 260px; padding: 20px; transition: all 0.3s; }
+    
+    @media (max-width: 991px) { .sidebar { left: -260px; } .main { margin-left: 0; } }
+
+    .card { border: none; border-radius: 5px; box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1); }
+    .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+    .form-check-input { width: 45px !important; height: 22px !important; cursor: pointer; }
+    
+    /* 모달 디자인 커스텀 (이미지 레이아웃 반영) */
+    .modal-content { border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; position: relative; }
+    .modal-title { font-weight: 700; color: #333; }
+    .modal-product-badge { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; margin-left: 15px; }
+    .modal-body { padding: 30px; }
+    .form-label { font-weight: 600; color: #666; font-size: 13px; margin-bottom: 5px; }
+    .form-control, .form-select { border-radius: 8px; border: 1px solid #e0e0e0; padding: 10px; font-size: 14px; }
+    .form-control:focus { border-color: #0d6efd; box-shadow: none; }
+    .bg-light-input { background-color: #f8f9fa !important; }
+    
+    /* 버튼 스타일 */
+    .btn-save { background-color: #0d6efd; border: none; padding: 10px 40px; border-radius: 8px; font-weight: 600; }
+    .btn-dark-custom { background-color: #212529; border: none; color: white; padding: 8px 15px; border-radius: 6px; font-size: 14px; }
+    .btn-last-gen { background-color: #0d6efd; border: none; border-radius: 8px; width: 100%; height: 100%; }
+  </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
-    <div class="container-fluid"><span class="navbar-brand">Match-up Admin</span></div>
-</nav>
+  <header id="header" class="header d-flex align-items-center shadow-sm">
+    <div class="logo"><span>MATCH-UP <i class='ri-star-fill' style='color: #ffc107;'></i></span></div>
+    <div class="ms-auto pe-3"><small class="text-muted">choi@myfootsize.com</small></div>
+  </header>
 
-<div class="container mb-5">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0 fs-6 fw-bold">상품 매칭 관리</h5>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>상품코드</th>
-                        <th>제품사진</th>
-                        <th>상품명</th>
-                        <th>서비스 활성화</th>
-                        <th class="text-center">매칭관리</th>
-                    </tr>
-                </thead>
-                <tbody id="productBody"></tbody>
+  <aside id="sidebar" class="sidebar">
+    <ul class="nav flex-column">
+      <li class="nav-item mb-2"><a class="nav-link bg-primary text-white rounded" href="#"><i class="bi bi-grid me-2"></i>매칭 상품 관리</a></li>
+      <li class="nav-item mb-2"><a class="nav-link text-dark" href="#"><i class="bi bi-journal-text me-2"></i>측정 리포트</a></li>
+    </ul>
+  </aside>
+
+  <main id="main" class="main">
+    <div class="pagetitle mb-4"><h1>매칭 상품 관리</h1></div>
+    <section class="section">
+      <div class="card">
+        <div class="card-body pt-3">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>Total : <span id="id_total_count" class="badge bg-primary">0</span></div>
+            <div class="input-group w-25">
+              <input type="text" class="form-control" placeholder="상품명 검색">
+              <button class="btn btn-dark"><i class="bi bi-search"></i></button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>상품코드</th>
+                  <th>제품사진</th>
+                  <th>상품명</th>
+                  <th class="text-center">서비스 활성화</th>
+                  <th class="text-center">매칭 관리</th>
+                </tr>
+              </thead>
+              <tbody id="product-list-body"></tbody>
             </table>
+          </div>
         </div>
-        <div class="card-footer bg-white d-flex justify-content-center border-0 py-3">
-            <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
-        </div>
-    </div>
-</div>
+      </div>
+    </section>
+  </main>
 
-<div class="modal fade" id="matchModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="id_dlg_lable" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
-            <div class="modal-header">
-                <h6 class="modal-title FW-BOLD">Matching Setup (매칭설정)</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                
-                <div class="modal-p-img-box">
-                    <img id="modalProductImg" src="" class="modal-p-img" onerror="this.src='https://via.placeholder.com/160x160?text=No+Img'">
-                    <p id="modalProductNameTitle" class="modal-p-title"></p>
-                </div>
-
-                <div class="modal-form-box">
-                    <form id="matchForm">
-                        
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label">Product Code (상품코드)</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="modalPCodeInput" readonly>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label">Product Name (상품명)</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="modalPNameInput" readonly>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label">Matchup Target (매치업 대상)</label>
-                            <div class="col-sm-8 btn-match-group">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="matchTarget" id="targetA" value="A" checked>
-                                    <label class="form-check-label" for="targetA">A type (전체 스니커즈)</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="matchTarget" id="targetB" value="B">
-                                    <label class="form-check-label" for="targetB">B type (중창/아웃솔 기준)</label>
-                                </div>
-                                <br> <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="matchTarget" id="targetC" value="C">
-                                    <label class="form-check-label" for="targetC">C type (특정 모델 기준)</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="matchTarget" id="targetCustom" value="Custom">
-                                    <label class="form-check-label" for="targetCustom">Custom type (직접 데이터 설정)</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label">Sneaker Group (스니커즈 그룹)</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="sneakerGroupSearch" placeholder="Select Sneaker Group... (검색하세요)">
-                                    <span class="input-group-text">🔍</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label">Model Name (모델명)</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="modalModelNameInput" readonly>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label">Matching Target Code (매칭 대상 코드)</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="modalMatchingTargetCodeInput" readonly>
-                            </div>
-                        </div>
-
-                        <div class="form-group row mb-0">
-                            <label class="col-sm-4 col-form-label">Admin Memo (관리자 메모)</label>
-                            <div class="col-sm-8">
-                                <textarea class="form-control" id="adminMemo" rows="3" placeholder="내부적으로 관리할 메모를 입력하세요."></textarea>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-
-            </div>
-            <div class="modal-footer px-4 pb-4">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close (닫기)</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="saveMatchSettings()">Save matching settings (저장)</button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header d-flex align-items-center">
+          <h5 class="modal-title m-0">매칭설정</h5>
+          <img id="modal_product_img" src="" class="modal-product-badge" alt="상품사진">
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+          <form id="productLable">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">상품코드</label>
+                <input type="text" name="shoe_seq" class="form-control bg-light-input" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">상품명</label>
+                <input type="text" name="gs_name" class="form-control bg-light-input" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">측정 종이 사이즈</label>
+                <select class="form-select" name="ref_obj">
+                  <option value="A4">A4</option>
+                  <option value="LETTER">LETTER</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">하이힐 여부</label>
+                <select class="form-select" name="high_heel">
+                  <option value="N">N</option>
+                  <option value="Y">Y</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">사이즈 시스템</label>
+                <select class="form-select" name="grading_system">
+                  <option value="MONDO">MONDO (KR/JP)</option>
+                  <option value="EUR">EUR</option>
+                  <option value="UK">UK</option>
+                  <option value="USM">US (Men)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">측정하는 상품의 사이즈</label>
+                <input type="text" name="shoe_size_input" class="form-control" placeholder="270.00">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">갑피재질</label>
+                <select class="form-select" name="shoe_upper_correct">
+                  <option value="3">Fabric (천)</option>
+                  <option value="5">Leather (가죽)</option>
+                  <option value="6">Padding (패딩)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">기본 피팅 설정</label>
+                <select class="form-select" name="shoe_fitting_correct">
+                  <option value="5">보통 (운동화)</option>
+                  <option value="7">타이트함 (구두)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="text-center my-4 pt-2">
+              <button type="button" class="btn btn-primary btn-save px-5">Save</button>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2 mb-4">
+              <button type="button" class="btn btn-dark-custom">라벨링</button>
+              <button type="button" class="btn btn-dark-custom">너비옵션</button>
+              <button type="button" class="btn btn-dark-custom">제조사이즈</button>
+            </div>
+
+            <div class="border-top pt-4 mt-2 row g-2 align-items-center">
+              <div class="col-md-2"><span class="small fw-bold text-muted">라스트 이름</span></div>
+              <div class="col-md-2"><input type="text" class="form-control bg-light-input text-center" value="0" readonly></div>
+              <div class="col-md-5"><input type="text" name="last_name" class="form-control" placeholder="라스트명 입력"></div>
+              <div class="col-md-3"><button type="button" class="btn btn-primary btn-last-gen">라스트 생성</button></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary px-4" style="border-radius: 8px;" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    let currPage = 1;
-    const matchModal = new bootstrap.Modal(document.getElementById('matchModal'));
-
-    async function load(page) {
-        currPage = page;
-        // Backend API 호출 (1단계에서 수정한 /api/products)
-        const res = await fetch(`/api/products?page=${page}&limit=20`);
-        const data = await res.json();
-        render(data.products, (page-1)*20);
-        renderPager(data.pagination);
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // 1. 카페24 연동 API 호출 (실제 연동을 위해 어제 만든 경로를 사용하세요)
+    async function loadRealProducts() {
+      try {
+        const response = await fetch('/api/products?page=1&limit=20');
+        const data = await response.json();
+        renderProducts(data.products);
+      } catch (e) {
+        console.error("데이터 로드 실패", e);
+      }
     }
 
-    function render(products, offset) {
-        const html = products.map((p, i) => `
-            <tr>
-                <td>${offset + i + 1}</td>
-                <td class="text-muted small">${p.product_code}</td>
-                <td><img src="${p.tiny_image}" class="table-img" onerror="this.src='https://via.placeholder.com/45x45?text=No+Img'"></td>
-                <td class="fw-bold">${p.product_name}</td>
-                <td>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" ${p.display === 'T' ? 'checked' : ''} 
-                               onclick="toggleService('${p.product_code}', this.checked)">
-                    </div>
-                </td>
-                <td class="text-center">
-                    <button class="btn btn-dark btn-sm" style="font-size: 0.8rem; padding: 4px 8px;" onclick="openModal('${p.product_code}', '${p.product_name}', '${p.list_image}')">매칭설정</button>
-                </td>
-            </tr>
-        `).join('');
-        $('#productBody').html(html);
+    // 2. 리스트 화면 출력 (실제 데이터 p.product_code 사용)
+    function renderProducts(products) {
+      const tbody = document.getElementById('product-list-body');
+      tbody.innerHTML = products.map(p => `
+        <tr>
+          <td><strong>${p.product_code}</strong></td>
+          <td><img src="${p.tiny_image}" class="product-img"></td>
+          <td>${p.product_name}</td>
+          <td class="text-center">
+            <div class="form-check form-switch d-inline-block">
+              <input class="form-check-input" type="checkbox" ${p.display === 'T' ? 'checked' : ''} onchange="checkStatus(this)">
+            </div>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-outline-primary btn-sm" onclick="openMatchingModal('${p.product_code}', '${p.product_name}', '${p.list_image}')">
+              <i class="bi bi-ruler"></i> 매칭 설정
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('id_total_count').innerText = products.length;
     }
 
-    function renderPager(pg) {
-        let h = `<li class="page-item ${currPage===1?'disabled':''}"><a class="page-link" onclick="load(${currPage-1})">&lsaquo;</a></li>`;
-        h += `<li class="page-item active"><a class="page-link">${currPage}</a></li>`;
-        if(pg.hasNextPage) h += `<li class="page-item"><a class="page-link" onclick="load(${currPage+1})">${currPage+1}</a></li>`;
-        h += `<li class="page-item ${!pg.hasNextPage?'disabled':''}"><a class="page-link" onclick="load(${currPage+1})">&rsaquo;</a></li>`;
-        $('#pagination').html(h);
+    function checkStatus(el) {
+      if (el.checked) {
+        alert("데이터 확인이 필요합니다.");
+        el.checked = false;
+      }
     }
 
-    function toggleService(pCode, isChecked) {
-        console.log(`서비스 상태 변경 요청: ${pCode} -> ${isChecked ? 'ON' : 'OFF'}`);
+    // 3. 모달 열기 및 데이터 바인딩 (p.list_image 활용)
+    function openMatchingModal(code, name, img) {
+      const modalEl = document.getElementById('id_dlg_lable');
+      const form = document.getElementById('productLable');
+      
+      form.querySelector('[name="shoe_seq"]').value = "M-" + code; // No. 자리에 상품코드 입력
+      form.querySelector('[name="gs_name"]').value = name;
+      document.getElementById('modal_product_img').src = img; // 상품 사진 연동
+      
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
     }
 
-    // [핵심] 모달 열기 함수: 이미지 및 진짜 상품 데이터 연동
-    function openModal(pCode, pName, listImage) {
-        // [1] 왼쪽 섹션 데이터 채우기
-        $('#modalProductImg').attr('src', listImage); // 진짜 상품 사진 설정
-        $('#modalProductNameTitle').text(pName); // 사진 아래 상품명 설정
-
-        // [2] 오른쪽 폼 섹션 데이터 채우기
-        $('#modalPCodeInput').val(pCode); // 1. 상품코드 (No. 자리에 입력)
-        $('#modalPNameInput').val(pName); // 2. 상품명
-        
-        // 5. 모델명 (간단히 상품명에서 앞부분만 가져오도록 예시 구현)
-        const modelName = pName.split(' ')[0] + ' ' + pName.split(' ')[1];
-        $('#modalModelNameInput').val(modelName); 
-
-        // 6. 매칭 대상 코드 (상품코드를 기본값으로 사용)
-        $('#modalMatchingTargetCodeInput').val(pCode);
-
-        // 7. 메모 초기화
-        $('#adminMemo').val('');
-
-        matchModal.show();
-    }
-
-    // 설정 저장 함수 (임시 구현)
-    async function saveMatchSettings() {
-        const pCode = $('#modalPCodeInput').val();
-        const target = $('input[name="matchTarget"]:checked').val();
-        const memo = $('#adminMemo').val();
-
-        alert(`[저장 완료 (임시)]\n\n상품코드: ${pCode}\n대상: ${target} type\n메모: ${memo}\n\n매치업 서버(DB)와 연동이 필요합니다.`);
-        
-        matchModal.hide();
-    }
-
-    $(document).ready(() => load(1));
-</script>
+    window.onload = loadRealProducts;
+  </script>
 </body>
 </html>
