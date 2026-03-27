@@ -10,21 +10,35 @@
         .table-img { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; }
         .form-check-input { cursor: pointer; }
         
-        /* 모달 스타일 고도화 */
-        .modal-header { border-bottom: none; }
-        .modal-body { display: flex; gap: 20px; }
-        .modal-footer { border-top: none; }
+        /* [중요] 모달 스타일 고도화 (modalCapture.png 레이아웃 반영) */
+        .modal-header { border-bottom: none; padding-bottom: 0; }
+        .modal-title { font-size: 1rem; font-weight: bold; }
+        .modal-body { display: flex; gap: 25px; padding: 25px; }
+        .modal-footer { border-top: none; padding-top: 0; }
+        
+        /* 왼쪽: 상품 이미지 섹션 */
         .modal-p-img-box { flex: 0 0 160px; text-align: center; }
-        .modal-p-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; }
-        .modal-p-title { font-size: 0.9rem; font-weight: bold; color: #333; line-height: 1.4; }
+        .modal-p-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; margin-bottom: 12px; }
+        .modal-p-title { font-size: 0.85rem; fw-bold; color: #333; line-height: 1.4; word-break: break-all; }
+        
+        /* 오른쪽: 입력 폼 섹션 (격자형) */
         .modal-form-box { flex: 1; }
-        .form-group.row { margin-bottom: 15px; align-items: center; }
-        .col-form-label { font-size: 0.85rem; font-weight: 600; color: #555; text-align: right; }
-        .form-control, .form-select { font-size: 0.85rem; padding: 6px 10px; border-radius: 6px; }
+        .form-group.row { margin-bottom: 12px; align-items: center; }
+        .col-form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-align: right; }
+        .form-control, .form-select { font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; border-color: #ddd; }
+        
+        /* 읽기전용 필드 스타일 */
         .form-control[readonly] { background-color: #f8f9fa; color: #777; border-color: #e9ecef; }
-        .btn-match-group .form-check { display: inline-block; margin-right: 15px; font-size: 0.85rem; }
-        .btn-primary { background-color: #0d6efd; border-color: #0d6efd; font-size: 0.9rem; padding: 6px 15px; }
-        .input-group-text { font-size: 0.85rem; background: none; border-left: none; }
+        
+        /* 라디오 버튼 그룹 스타일 */
+        .btn-match-group .form-check { display: inline-block; margin-right: 15px; font-size: 0.8rem; }
+        
+        /* 버튼 스타일 */
+        .btn-primary { background-color: #0d6efd; border-color: #0d6efd; font-size: 0.85rem; padding: 6px 15px; border-radius: 6px; }
+        .btn-secondary { font-size: 0.85rem; padding: 6px 15px; border-radius: 6px; }
+        
+        /* 검색 아이콘 스타일 */
+        .input-group-text { font-size: 0.8rem; background: none; border-left: none; color: #aaa; }
         .input-group .form-control { border-right: none; }
     </style>
 </head>
@@ -34,13 +48,13 @@
     <div class="container-fluid"><span class="navbar-brand">Match-up Admin</span></div>
 </nav>
 
-<div class="container">
+<div class="container mb-5">
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0 fs-6 fw-bold">상품 매칭 관리</h5>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
@@ -62,10 +76,10 @@
 
 <div class="modal fade" id="matchModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
             <div class="modal-header">
-                <h6 class="modal-title fw-bold">Matching Setup (매칭설정)</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h6 class="modal-title FW-BOLD">Matching Setup (매칭설정)</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 
@@ -78,22 +92,22 @@
                     <form id="matchForm">
                         
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Product Code (상품코드)</label>
-                            <div class="col-sm-9">
+                            <label class="col-sm-4 col-form-label">Product Code (상품코드)</label>
+                            <div class="col-sm-8">
                                 <input type="text" class="form-control" id="modalPCodeInput" readonly>
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Product Name (상품명)</label>
-                            <div class="col-sm-9">
+                            <label class="col-sm-4 col-form-label">Product Name (상품명)</label>
+                            <div class="col-sm-8">
                                 <input type="text" class="form-control" id="modalPNameInput" readonly>
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Matchup Target (매치업 대상)</label>
-                            <div class="col-sm-9 btn-match-group">
+                            <label class="col-sm-4 col-form-label">Matchup Target (매치업 대상)</label>
+                            <div class="col-sm-8 btn-match-group">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="matchTarget" id="targetA" value="A" checked>
                                     <label class="form-check-label" for="targetA">A type (전체 스니커즈)</label>
@@ -102,7 +116,7 @@
                                     <input class="form-check-input" type="radio" name="matchTarget" id="targetB" value="B">
                                     <label class="form-check-label" for="targetB">B type (중창/아웃솔 기준)</label>
                                 </div>
-                                <div class="form-check">
+                                <br> <div class="form-check">
                                     <input class="form-check-input" type="radio" name="matchTarget" id="targetC" value="C">
                                     <label class="form-check-label" for="targetC">C type (특정 모델 기준)</label>
                                 </div>
@@ -114,32 +128,32 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Sneaker Group (스니커즈 그룹)</label>
-                            <div class="col-sm-9">
+                            <label class="col-sm-4 col-form-label">Sneaker Group (스니커즈 그룹)</label>
+                            <div class="col-sm-8">
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="sneakerGroupSearch" placeholder="Select Sneaker Group... (검색하세요)">
-                                    <span class="input-group-text"><i class="bi bi-search">🔍</i></span>
+                                    <span class="input-group-text">🔍</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Model Name (모델명)</label>
-                            <div class="col-sm-9">
+                            <label class="col-sm-4 col-form-label">Model Name (모델명)</label>
+                            <div class="col-sm-8">
                                 <input type="text" class="form-control" id="modalModelNameInput" readonly>
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Matching Target Code (매칭 대상 코드)</label>
-                            <div class="col-sm-9">
+                            <label class="col-sm-4 col-form-label">Matching Target Code (매칭 대상 코드)</label>
+                            <div class="col-sm-8">
                                 <input type="text" class="form-control" id="modalMatchingTargetCodeInput" readonly>
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            <label class="col-sm-3 col-form-label">Admin Memo (관리자 메모)</label>
-                            <div class="col-sm-9">
+                        <div class="form-group row mb-0">
+                            <label class="col-sm-4 col-form-label">Admin Memo (관리자 메모)</label>
+                            <div class="col-sm-8">
                                 <textarea class="form-control" id="adminMemo" rows="3" placeholder="내부적으로 관리할 메모를 입력하세요."></textarea>
                             </div>
                         </div>
@@ -148,7 +162,7 @@
                 </div>
 
             </div>
-            <div class="modal-footer px-4">
+            <div class="modal-footer px-4 pb-4">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close (닫기)</button>
                 <button type="button" class="btn btn-primary btn-sm" onclick="saveMatchSettings()">Save matching settings (저장)</button>
             </div>
@@ -165,9 +179,9 @@
 
     async function load(page) {
         currPage = page;
+        // Backend API 호출 (1단계에서 수정한 /api/products)
         const res = await fetch(`/api/products?page=${page}&limit=20`);
         const data = await res.json();
-        // list_image 데이터를 넘겨주도록 수정
         render(data.products, (page-1)*20);
         renderPager(data.pagination);
     }
@@ -178,7 +192,7 @@
                 <td>${offset + i + 1}</td>
                 <td class="text-muted small">${p.product_code}</td>
                 <td><img src="${p.tiny_image}" class="table-img" onerror="this.src='https://via.placeholder.com/45x45?text=No+Img'"></td>
-                <td>${p.product_name}</td>
+                <td class="fw-bold">${p.product_name}</td>
                 <td>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" ${p.display === 'T' ? 'checked' : ''} 
@@ -186,7 +200,7 @@
                     </div>
                 </td>
                 <td class="text-center">
-                    <button class="btn btn-dark btn-sm" onclick="openModal('${p.product_code}', '${p.product_name}', '${p.list_image}')">매칭설정</button>
+                    <button class="btn btn-dark btn-sm" style="font-size: 0.8rem; padding: 4px 8px;" onclick="openModal('${p.product_code}', '${p.product_name}', '${p.list_image}')">매칭설정</button>
                 </td>
             </tr>
         `).join('');
@@ -202,17 +216,17 @@
     }
 
     function toggleService(pCode, isChecked) {
-        console.log(`서비스 상태 변경: ${pCode} -> ${isChecked ? 'ON' : 'OFF'}`);
+        console.log(`서비스 상태 변경 요청: ${pCode} -> ${isChecked ? 'ON' : 'OFF'}`);
     }
 
-    // 모달 열기 (이미지 및 상품 데이터 연동)
+    // [핵심] 모달 열기 함수: 이미지 및 진짜 상품 데이터 연동
     function openModal(pCode, pName, listImage) {
-        // 이미지 설정
-        $('#modalProductImg').attr('src', listImage);
-        $('#modalProductNameTitle').text(pName);
+        // [1] 왼쪽 섹션 데이터 채우기
+        $('#modalProductImg').attr('src', listImage); // 진짜 상품 사진 설정
+        $('#modalProductNameTitle').text(pName); // 사진 아래 상품명 설정
 
-        // [핵심] 데이터 채워넣기
-        $('#modalPCodeInput').val(pCode); // 1. 상품코드
+        // [2] 오른쪽 폼 섹션 데이터 채우기
+        $('#modalPCodeInput').val(pCode); // 1. 상품코드 (No. 자리에 입력)
         $('#modalPNameInput').val(pName); // 2. 상품명
         
         // 5. 모델명 (간단히 상품명에서 앞부분만 가져오도록 예시 구현)
@@ -228,15 +242,13 @@
         matchModal.show();
     }
 
-    // 설정 저장
+    // 설정 저장 함수 (임시 구현)
     async function saveMatchSettings() {
         const pCode = $('#modalPCodeInput').val();
-        const pName = $('#modalPNameInput').val();
         const target = $('input[name="matchTarget"]:checked').val();
-        const group = $('#sneakerGroupSearch').val();
         const memo = $('#adminMemo').val();
 
-        alert(`매칭 설정 저장 (임시)\n\n상품코드: ${pCode}\n대상: ${target} type\n그룹: ${group}\n메모: ${memo}\n\n데이터베이스 연동이 필요합니다.`);
+        alert(`[저장 완료 (임시)]\n\n상품코드: ${pCode}\n대상: ${target} type\n메모: ${memo}\n\n매치업 서버(DB)와 연동이 필요합니다.`);
         
         matchModal.hide();
     }
