@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>매치업 - 카페24 연동 테스트</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; font-family: 'Nunito', sans-serif; padding: 20px; }
+    .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+    .card { border: none; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    .form-check-input { width: 40px; height: 20px; cursor: pointer; }
+    .modal-header img { margin-left: 15px; border: 1px solid #eee; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="pagetitle mb-4">
+      <h1>매칭 상품 관리</h1>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center my-3">
+          <div>전체 상품: <span id="total-count" class="badge bg-primary">0</span></div>
+          <button class="btn btn-outline-dark btn-sm" onclick="fetchCafe24Products()">
+            <i class="bi bi-arrow-clockwise"></i> 카페24 상품 불러오기
+          </button>
+        </div>
+
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>상품코드</th>
+              <th>제품사진</th>
+              <th>상품명</th>
+              <th class="text-center">서비스 활성화</th>
+              <th class="text-center">매칭 관리</th>
+            </tr>
+          </thead>
+          <tbody id="product-list">
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="id_dlg_lable" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">매칭설정</h5>
+          <img id="modal_product_img" src="" class="product-img" alt="상품사진"> 
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="productLable">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted small">No.</label> 
+                <input type="text" name="shoe_seq" class="form-control bg-light" value="10233392" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">상품명</label> 
+                <input type="text" name="gs_name" class="form-control bg-light" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">측정 종이 사이즈</label> 
+                <select class="form-select" name="ref_obj">
+                  <option value="A4">A4</option>
+                  <option value="LETTER">LETTER</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">하이힐 여부</label> 
+                <select class="form-select" name="high_heel">
+                  <option value="N">N</option>
+                  <option value="Y">Y</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">사이즈 시스템</label> 
+                <select class="form-select" name="grading_system">
+                  <option value="MONDO">MONDO</option>
+                  <option value="UK">UK</option>
+                  <option value="USM">USM</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">측정하는 상품의 사이즈</label> 
+                <input type="text" name="shoe_size_input" class="form-control" placeholder="270.00">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">갑피재질</label> 
+                <select class="form-select" name="shoe_upper_correct">
+                  <option value="3">Fabric</option>
+                  <option value="5">Leather</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">기본 피팅 설정</label> 
+                <select class="form-select" name="shoe_fitting_correct">
+                  <option value="5">Comfortable shoes (sneakers)</option>
+                  <option value="7">Style First (Dress Shoes)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="text-center my-4">
+              <button type="button" class="btn btn-primary px-5">Save</button>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2 mb-4">
+              <button type="button" class="btn btn-dark" onclick="alert('라벨링 화면 호출: /labeler/resize_labeling_tool.php')">라벨링</button> 
+              <button type="button" class="btn btn-dark">너비옵션</button> 
+              <button type="button" class="btn btn-dark">제조사이즈</button> 
+            </div>
+
+            <div class="border-top pt-3 row align-items-end">
+              <div class="col-md-2 small text-muted">라스트 이름</div> 
+              <div class="col-md-2"><input type="text" class="form-control bg-light" value="0" readonly></div>
+              <div class="col-md-5"><input type="text" name="last_name" class="form-control" placeholder="라스트명 입력"></div>
+              <div class="col-md-3"><button type="button" class="btn btn-primary w-100">라스트 생성</button></div> 
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // 카페24 API 응답을 가정한 가짜 데이터 (Mock Data)
+    const cafe24Data = [
+      { product_no: 'P00000CE', product_name: '히든업 키높이 스니커즈', detail_image: 'https://via.placeholder.com/60/012970/ffffff?text=SHOE1' },
+      { product_no: 'P00000CF', product_name: '아더 갤럭시 로우탑', detail_image: 'https://via.placeholder.com/60/012970/ffffff?text=SHOE2' }
+    ];
+
+    /**
+     * 상품 리스트를 화면에 그리는 함수
+     */
+    function fetchCafe24Products() {
+      const listBody = document.getElementById('product-list');
+      listBody.innerHTML = cafe24Data.map(item => `
+        <tr>
+          <td><strong>${item.product_no}</strong></td>
+          <td><img src="${item.detail_image}" class="product-img"></td>
+          <td>${item.product_name}</td>
+          <td class="text-center">
+            <div class="form-check form-switch d-inline-block">
+              <input class="form-check-input" type="checkbox" onchange="checkStatus(this)">
+            </div>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-outline-primary btn-sm" onclick="openMatchingModal('${item.product_name}', '${item.detail_image}')">
+              매칭 설정
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('total-count').innerText = cafe24Data.length;
+    }
+
+    /**
+     * 매칭설정 모달 열기 및 데이터 전달
+     */
+    function openMatchingModal(name, img) {
+      const modal = document.getElementById('id_dlg_lable');
+      modal.querySelector('[name="gs_name"]').value = name;
+      document.getElementById('modal_product_img').src = img;
+      new bootstrap.Modal(modal).show();
+    }
+
+    function checkStatus(el) {
+      if (el.checked) {
+        alert("측정 데이터가 없습니다. 먼저 측정을 완료해 주세요.");
+        el.checked = false;
+      }
+    }
+
+    // 초기 실행
+    window.onload = fetchCafe24Products;
+  </script>
+</body>
+</html>
