@@ -2,57 +2,76 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>매치업(Match-up) 상품 관리</title>
+    <title>매치업(Match-up) 관리 시스템</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
-        .table-img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #eee; }
-        .btn-match { padding: 4px 8px; font-size: 0.85rem; }
-        #loadingSpinner { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; }
+        body { background-color: #f4f6f9; }
+        .table-img { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; }
+        /* 토글 스위치 스타일 */
+        .form-check-input { cursor: pointer; width: 3em; height: 1.5em; }
+        .page-link { color: #333; }
+        .active > .page-link { background-color: #333; border-color: #333; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">매치업(Match-up) 상품 관리</a>
-    </div>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid"><span class="navbar-brand">Match-up Admin</span></div>
 </nav>
 
-<div class="container my-5">
+<div class="container">
     <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">쇼핑몰 상품 목록 (Mall: myfootsize)</h5>
-        </div>
-        
-        <div class="card-body p-0 position-relative">
-            <div id="loadingSpinner" class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <div class="mt-2 text-primary">상품을 불러오는 중...</div>
-            </div>
-
-            <table class="table table-striped table-hover mb-0" id="productTable">
+        <div class="card-header bg-white"><strong>상품 매칭 관리</strong></div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">상품코드</th> <th scope="col">제품사진</th> <th scope="col">상품명</th>
-                        <th scope="col">판매가</th>
-                        <th scope="col" class="text-center">설정</th>
+                        <th>#</th>
+                        <th>상품코드</th>
+                        <th>제품사진</th>
+                        <th>상품명</th>
+                        <th>서비스 활성화</th>
+                        <th class="text-center">매칭관리</th>
                     </tr>
                 </thead>
-                <tbody id="productTableBody">
-                    </tbody>
+                <tbody id="productBody"></tbody>
             </table>
         </div>
-
         <div class="card-footer bg-white d-flex justify-content-center">
-            <nav aria-label="Product Page Navigation">
-                <ul class="pagination pagination-sm mb-0" id="paginationControls">
-                    </ul>
-            </nav>
+            <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="matchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">매칭 데이터 설정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalPName" class="fw-bold text-primary"></p>
+                <form id="matchForm">
+                    <input type="hidden" id="modalPCode">
+                    <div class="mb-3">
+                        <label class="form-label">발볼 난이도</label>
+                        <select class="form-select" id="widthLevel">
+                            <option value="narrow">좁음 (Narrow)</option>
+                            <option value="normal" selected>보통 (Normal)</option>
+                            <option value="wide">넓음 (Wide)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">사이즈 추천 문구</label>
+                        <textarea class="form-control" id="matchNote" rows="3" placeholder="예: 정사이즈보다 5mm 크게 주문하세요."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="saveMatchSettings()">설정 저장</button>
+            </div>
         </div>
     </div>
 </div>
@@ -61,115 +80,77 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 현재 페이지 상태 저장 변수
-    let currentPage = 1;
-    const itemsPerPage = 20; // 한 화면에 20개씩 보기
+    let currPage = 1;
+    const matchModal = new bootstrap.Modal(document.getElementById('matchModal'));
 
-    // 1. 상품 데이터를 불러오는 메인 함수
-    async function loadProducts(page) {
-        currentPage = page; // 현재 페이지 업데이트
-        const tbody = $('#productTableBody');
-        const spinner = $('#loadingSpinner');
-
-        tbody.empty(); // 이전 데이터 지우기
-        spinner.show(); // 로딩 표시 시작
-
-        try {
-            // Backend API 호출 (페이지 번호와 개수 전달)
-            const response = await fetch(`/api/products?page=${page}&limit=${itemsPerPage}`);
-            const data = await response.json();
-
-            spinner.hide(); // 로딩 표시 종료
-
-            if (data.products && data.products.length > 0) {
-                // 테이블 행 생성
-                renderTableRows(data.products);
-                // 하단 페이지 버튼 생성
-                renderPaginationControls(data.pagination);
-            } else {
-                tbody.append('<tr><td colspan="6" class="text-center p-5">등록된 상품이 없거나 데이터를 불러오지 못했습니다.</td></tr>');
-                $('#paginationControls').empty();
-            }
-        } catch (error) {
-            spinner.hide();
-            tbody.append('<tr><td colspan="6" class="text-center p-5 text-danger">서버 통신 오류가 발생했습니다. (토큰 만료 확인 요망)</td></tr>');
-            console.error('Data Load Error:', error);
-        }
+    async function load(page) {
+        currPage = page;
+        const res = await fetch(`/api/products?page=${page}&limit=20`);
+        const data = await res.json();
+        render(data.products, (page-1)*20);
+        renderPager(data.pagination);
     }
 
-    // 2. 받은 데이터로 테이블 행(Row)을 그리는 함수
-    function renderTableRows(products) {
-        const tbody = $('#productTableBody');
-        
-        products.forEach((item, index) => {
-            // 순서 변경 적용: 코드 -> 사진 -> 이름 -> 가격
-            const row = `
-                <tr>
-                    <td class="align-middle">${item.shop_no}</td>
-                    <td class="align-middle text-secondary">${item.product_no}</td> <td class="align-middle">
-                        <img src="${item.tiny_image}" class="table-img" alt="상품이미지" onerror="this.src='https://via.placeholder.com/50x50?text=No+Img'">
-                    </td> <td class="align-middle"><strong>${item.product_name}</strong></td>
-                    <td class="align-middle">${Number(item.price).toLocaleString()}원</td>
-                    <td class="align-middle text-center">
-                        <button class="btn btn-sm btn-outline-primary btn-match" onclick="openMatchSetup('${item.product_no}', '${item.product_name}')">
-                            설정
-                        </button>
-                    </td>
-                </tr>`;
-            tbody.append(row);
+    function render(products, offset) {
+        const html = products.map((p, i) => `
+            <tr>
+                <td>${offset + i + 1}</td>
+                <td class="text-muted small">${p.product_code}</td>
+                <td><img src="${p.tiny_image}" class="table-img"></td>
+                <td>${p.product_name}</td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" ${p.display === 'T' ? 'checked' : ''} 
+                               onclick="toggleService('${p.product_code}', this.checked)">
+                    </div>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-dark btn-sm" onclick="openModal('${p.product_code}', '${p.product_name}')">매칭설정</button>
+                </td>
+            </tr>
+        `).join('');
+        $('#productBody').html(html);
+    }
+
+    function renderPager(pg) {
+        let h = `<li class="page-item ${currPage===1?'disabled':''}"><a class="page-link" onclick="load(${currPage-1})">&lt;</a></li>`;
+        h += `<li class="page-item active"><a class="page-link">${currPage}</a></li>`;
+        if(pg.hasNextPage) h += `<li class="page-item"><a class="page-link" onclick="load(${currPage+1})">${currPage+1}</a></li>`;
+        h += `<li class="page-item ${!pg.hasNextPage?'disabled':''}"><a class="page-link" onclick="load(${currPage+1})">&gt;</a></li>`;
+        $('#pagination').html(h);
+    }
+
+    // 서비스 활성화 토글 함수
+    function toggleService(pCode, isChecked) {
+        console.log(`서비스 상태 변경: ${pCode} -> ${isChecked ? 'ON' : 'OFF'}`);
+        // 여기에 나중에 매치업 서버로 상태를 보내는 fetch 코드를 넣습니다.
+    }
+
+    // 모달 열기
+    function openModal(pCode, pName) {
+        $('#modalPName').text(pName);
+        $('#modalPCode').val(pCode);
+        matchModal.show();
+    }
+
+    // [중요] 매치업 서버와 연동하여 설정 저장
+    async function saveMatchSettings() {
+        const pCode = $('#modalPCode').val();
+        const width = $('#widthLevel').val();
+        const note = $('#matchNote').val();
+
+        alert(`${pCode} 상품의 매칭 데이터를 저장합니다.\n발볼: ${width}\n메모: ${note}`);
+
+        /* // 실제 매치업 서버(또는 DB) 연동 코드 예시
+        const res = await fetch('/api/save-match', {
+            method: 'POST',
+            body: JSON.stringify({ pCode, width, note })
         });
+        */
+        matchModal.hide();
     }
 
-    // 3. 하단 페이지 이동 버튼을 그리는 함수 (숫자와 꺽쇠표)
-    function renderPaginationControls(pagination) {
-        const controls = $('#paginationControls');
-        controls.empty(); // 기존 버튼 지우기
-
-        // 꺽쇠표: 이전 (<)
-        const prevDisabled = currentPage === 1 ? 'disabled' : '';
-        controls.append(`<li class="page-item ${prevDisabled}"><a class="page-link" href="#" onclick="changePage(${currentPage - 1})" aria-label="Previous">&lsaquo;</a></li>`);
-
-        // 숫자 페이지 버튼 (단순 구현: 현재 페이지와 이전/다음 페이지 몇 개만 표시)
-        // 카페24 API는 전체 페이지 수를 주지 않으므로, 유동적으로 표시합니다.
-        
-        // 1페이지 버튼은 항상 표시
-        controls.append(`<li class="page-item ${currentPage === 1 ? 'active' : ''}"><a class="page-link" href="#" onclick="changePage(1)">1</a></li>`);
-
-        if (currentPage > 3) { controls.append('<li class="page-item disabled"><span class="page-link">...</span></li>'); }
-
-        // 현재 페이지 주변 숫자 표시
-        for (let i = Math.max(2, currentPage - 1); i <= currentPage + 1; i++) {
-            // Backend에서 다음 페이지가 있다고 했거나, 현재 페이지인 경우에만 버튼 생성
-            if (i === currentPage || pagination.hasNextPage || (currentPage > i)) {
-                // 너무 많은 숫자가 나오지 않도록 제한
-                if(controls.find(`a:contains('${i}')`).length === 0) { // 중복 생성 방지
-                   controls.append(`<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changePage(${i})">${i}</a></li>`);
-                }
-            }
-        }
-
-        // 꺽쇠표: 다음 (>)
-        // Backend에서 데이터가 limit만큼 꽉 차서 왔을 때만 다음 버튼 활성화
-        const nextDisabled = !pagination.hasNextPage ? 'disabled' : '';
-        controls.append(`<li class="page-item ${nextDisabled}"><a class="page-link" href="#" onclick="changePage(${currentPage + 1})" aria-label="Next">&rsaquo;</a></li>`);
-    }
-
-    // 4. 페이지 변경 시 호출되는 함수
-    function changePage(newPage) {
-        if (newPage < 1) return; // 1페이지 미만 금지
-        loadProducts(newPage); // 해당 페이지 데이터 로드
-    }
-
-    // 임시 설정 함수
-    function openMatchSetup(no, name) {
-        alert('[' + no + '] ' + name + '\n매칭 설정을 시작합니다. (추후 구현)');
-    }
-
-    // 페이지 로드 시 1페이지 실행
-    $(document).ready(function () {
-        loadProducts(1);
-    });
+    $(document).ready(() => load(1));
 </script>
-
 </body>
 </html>
